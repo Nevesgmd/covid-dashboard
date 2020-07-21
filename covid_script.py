@@ -1,6 +1,7 @@
 # Importing libraries
 import requests
 import gspread
+import pandas as pd
 from oauth2client.service_account import ServiceAccountCredentials
 
 # Setting headers to use with requests session
@@ -19,7 +20,7 @@ with requests.Session() as session:
     open('covid_data.xlsx', 'wb').write(r.content)
     print('Download completed.')
 
-# Use credencials to create a client to interact with the Google Drive API and Google Sheets API
+# Using credencials to create a client to interact with the Google Drive API and Google Sheets API
 scope = ['https://spreadsheets.google.com/feeds',
          'https://www.googleapis.com/auth/drive']
 creds = ServiceAccountCredentials.from_json_keyfile_name('covid_dashboard_credentials.json', scope)
@@ -31,3 +32,28 @@ sheet = client.open("COVID-19 Dashboard").sheet1
 # Extracting and printing all the sheet values
 sheet_values = sheet.get_all_records()
 print(sheet_values)
+
+# Creating df with excel file
+print('Creating DataFrame.')
+covid_df = pd.read_excel('covid_data.xlsx')
+# Converting datetime to str to avoid API error
+covid_df['data'] = covid_df['data'].astype(str)
+# Filling null values with empty string to avoid API error
+covid_df.fillna('', inplace=True)
+# Filtering data from Santa Catarina
+covid_santa_catarina = covid_df.copy().query('estado == "SC"')
+# Dropping unhelpful columns
+covid_santa_catarina.drop(['regiao', 'estado', 'coduf', 'Recuperadosnovos',
+                           'codmun', 'codRegiaoSaude', 'interior/metropolitana',
+                           'emAcompanhamentoNovos'], axis=1, inplace=True)
+# Renaming columns
+covid_santa_catarina.rename(columns={'nomeRegiaoSaude': 'regiao_do_estado', 'semanaEpi': 'semana_epidemia',
+                                     'populacaoTCU2019': 'populacao_tcu_2019', 'casosAcumulado': 'casos_acumulados',
+                                     'casosNovos': 'casos_novos', 'obitosAcumulado': 'obitos_acumulados',
+                                     'obitosNovos': 'obitos_novos'}, inplace=True)
+
+print('DataFrame created. Updating sheet.')
+
+# Updating sheet
+sheet.update([covid_santa_catarina.columns.values.tolist()] + covid_santa_catarina.values.tolist())
+print('Sheet updated.')
