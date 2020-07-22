@@ -38,8 +38,8 @@ while True:
     # Creating df with excel file
     print('Creating DataFrame.')
     covid_df = pd.read_excel('covid_data.xlsx')
-    # Converting datetime to str to avoid API error
-    covid_df['data'] = covid_df['data'].astype(str)
+    # Selecting only the day and month of date
+    covid_df['data'] = covid_df.data.dt.strftime('%d/%m')
     # Filling null values with empty string to avoid API error
     covid_df.fillna('', inplace=True)
     # Filtering data from Santa Catarina
