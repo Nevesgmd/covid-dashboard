@@ -38,10 +38,6 @@ while True:
     # Creating df with excel file
     print('Creating DataFrame.')
     covid_df = pd.read_excel('covid_data.xlsx')
-    # Selecting only the day and month of date
-    covid_df['data'] = covid_df.data.dt.strftime('%d/%m')
-    # Filling null values with empty string to avoid API error
-    covid_df.fillna('', inplace=True)
     # Filtering data from Santa Catarina
     covid_santa_catarina = covid_df.copy().query('estado == "SC"')
     # Dropping unhelpful columns
@@ -53,7 +49,10 @@ while True:
                                          'populacaoTCU2019': 'populacao_tcu_2019', 'casosAcumulado': 'casos_acumulados',
                                          'casosNovos': 'casos_novos', 'obitosAcumulado': 'obitos_acumulados',
                                          'obitosNovos': 'obitos_novos'}, inplace=True)
-
+    # Selecting only the day and month of date
+    covid_santa_catarina['data'] = covid_df.data.dt.strftime('%d/%m')
+    # Filling null values with empty string to avoid API error
+    covid_santa_catarina.fillna('', inplace=True)
     print('DataFrame created. Updating sheet.')
 
     # Updating sheet
