@@ -1,6 +1,6 @@
 # COVID-19 Google Sheets Dashboard - Santa Catarina
 
-Um script Python que atualiza uma planilha no Google Sheets de hora em hora.
+Um script Python que atualiza uma planilha no Google Sheets com os dados do COVID-19 em Santa Catarina e Florianópolis.
 
 
 ## Como manter um código Python rodando na nuvem?
